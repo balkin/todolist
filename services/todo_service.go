@@ -9,8 +9,9 @@ var db *pg.DB
 
 func ConnectToDatabase() {
 	db = pg.Connect(&pg.Options{
-		User: "postgres",
+		User: "root", Password: "Passw0rd",
 	})
+	log.Println("Connected to database", db)
 }
 
 func DisconnectDatabase() {
