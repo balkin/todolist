@@ -1,24 +1,32 @@
 package services
 
 import (
-	"github.com/go-pg/pg"
-	"log"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-var db *pg.DB
-
-func ConnectToDatabase() {
-	db = pg.Connect(&pg.Options{
-		User: "root", Password: "Passw0rd",
-	})
-	log.Println("Connected to database", db)
+type TodoItem struct {
+	gorm.Model
+	SubItems []*TodoItem `gorm:"many2many:todo_subitems;association_jointable_foreignkey:todo_subitem_id"`
 }
 
-func DisconnectDatabase() {
-	if db == nil {
-		return
+var Db *gorm.DB
+
+func ConnectToDatabase() error {
+	var err error
+	Db, err = gorm.Open("postgres", "host=localhost user=root dbname=root password=Passw0rd sslmode=disable")
+	if err != nil {
+		return err
 	}
-	if err := db.Close(); err != nil {
-		log.Println("Failed to disconnect database", err)
+	Db.AutoMigrate(&TodoItem{})
+	return err
+}
+
+func DisconnectDatabase() error {
+	if Db != nil {
+		err := Db.Close()
+		Db = nil
+		return err
 	}
+	return nil
 }

@@ -32,7 +32,9 @@ func main() {
 	log.SetFlags(log.LstdFlags)
 	router := gin.Default()
 	router.GET("/", controllers.IndexController)
-	services.ConnectToDatabase()
+	if err := services.ConnectToDatabase(); err != nil {
+		panic(err)
+	}
 
 	HttpDaemon = &http.Server{Addr: ":8000", Handler: router, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second}
 	go func() {
