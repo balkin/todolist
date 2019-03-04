@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/balkin/todolist/controllers"
-	"github.com/balkin/todolist/services"
+	"github.com/balkin/todolist/todo"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -32,9 +32,7 @@ func main() {
 	log.SetFlags(log.LstdFlags)
 	router := gin.Default()
 	router.GET("/", controllers.IndexController)
-	if err := services.ConnectToDatabase(); err != nil {
-		panic(err)
-	}
+	todo.ConnectToDatabase()
 
 	HttpDaemon = &http.Server{Addr: ":8000", Handler: router, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second}
 	go func() {
@@ -60,7 +58,7 @@ func main() {
 			if err := HttpDaemon.Shutdown(ctx); err != nil {
 				log.Fatal("Error during HTTP server shutdown:", err)
 			}
-			go services.DisconnectDatabase()
+			go todo.DisconnectDatabase()
 			select {
 			case <-ctx.Done():
 				log.Println("Stopped HTTP server after waiting 5 seconds")
