@@ -8,6 +8,15 @@ var Db *pg.DB
 
 func ConnectToDatabase() {
 	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd"})
+	qs := []string{
+		"CREATE TABLE IF NOT EXISTS todo_items(id int, name text, parent_id int)",
+	}
+	for _, q := range qs {
+		_, err := Db.Exec(q)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func DisconnectDatabase() {

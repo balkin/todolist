@@ -1,0 +1,113 @@
+basePath: /api/v1
+definitions:
+  controllers.CountStruct:
+    properties:
+      count:
+        type: integer
+    type: object
+  todo.TodoItem:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: '{{.Description}}'
+  license: {}
+  title: '{{.Title}}'
+  version: '{{.Version}}'
+paths:
+  /todo/count:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CountStruct'
+            type: object
+      summary: Count todo items without a parent
+  /todo/item:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo.TodoItem'
+            type: array
+      summary: List todo items
+  /todo/item/:
+    post:
+      parameters:
+      - description: Add Todo item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/todo.TodoItem'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo.TodoItem'
+            type: array
+      summary: Add todo item (root)
+  /todo/item/{id}:
+    delete:
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete todo item including subitems
+    get:
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo.TodoItem'
+            type: array
+      summary: Show todo item including subitems
+    post:
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo.TodoItem'
+            type: array
+      summary: Add todo sub item
+swagger: "2.0"

@@ -1,10 +1,12 @@
 package main
 
 import (
+	_ "./docs"
 	"context"
 	"github.com/balkin/todolist/controllers"
 	"github.com/balkin/todolist/todo"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +15,6 @@ import (
 	"time"
 )
 
-//HTTP Server
 //Sigterm: graceful (finish all requests and quit)
 //Sigint: fast quit
 //Postgresql
@@ -28,10 +29,25 @@ import (
 
 var HttpDaemon *http.Server
 
+// @host localhost:8000
+// @BasePath /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags)
 	router := gin.Default()
 	router.GET("/", controllers.IndexController)
+	v1 := router.Group("/api/v1")
+	{
+		todoApi := v1.Group("/todo")
+		{
+			todoApi.GET("count", controllers.TodoCountItems)
+			todoApi.GET("item/", controllers.TodoListItems)
+			todoApi.POST("item/", controllers.TodoAddItem)
+			todoApi.GET("item/:id", controllers.TodoShowItem)
+			todoApi.POST("item/:id", controllers.TodoAddSubItem)
+			todoApi.DELETE("item/:id", controllers.TodoDeleteItem)
+		}
+	}
+	router.GET("/swagger/*any", controllers.GinModeReleaseSwagger(swaggerFiles.Handler)) // not in production
 	todo.ConnectToDatabase()
 
 	HttpDaemon = &http.Server{Addr: ":8000", Handler: router, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second}
