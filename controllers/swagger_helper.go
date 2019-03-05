@@ -10,8 +10,8 @@ type CountStruct struct {
 	Count int `json:"count"`
 }
 
-type SimpleTodoItem struct {
-	Name string
+type ErrorStruct struct {
+	Error interface{} `json:"error"`
 }
 
 func GinModeReleaseSwagger(h *webdav.Handler) gin.HandlerFunc {

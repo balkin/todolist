@@ -40,6 +40,7 @@ func main() {
 		todoApi := v1.Group("/todo")
 		{
 			todoApi.GET("count", controllers.TodoCountItems)
+			todoApi.GET("countall", controllers.TodoCountAllItems)
 			todoApi.GET("item/", controllers.TodoListItems)
 			todoApi.POST("item/", controllers.TodoAddItem)
 			todoApi.GET("item/:id", controllers.TodoShowItem)

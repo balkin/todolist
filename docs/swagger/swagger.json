@@ -27,7 +27,24 @@
                 }
             }
         },
-        "/todo/item": {
+        "/todo/countall": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Count todo items without a parent",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/controllers.CountStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/todo/item/": {
             "get": {
                 "produces": [
                     "application/json"
@@ -44,9 +61,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/todo/item/": {
+            },
             "post": {
                 "produces": [
                     "application/json"
@@ -54,13 +69,13 @@
                 "summary": "Add todo item (root)",
                 "parameters": [
                     {
-                        "description": "Add Todo item",
+                        "description": "Add TodoItem",
                         "name": "item",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/todo.TodoItem"
+                            "$ref": "#/definitions/todo.SimpleTodoItem"
                         }
                     }
                 ],
@@ -68,10 +83,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/todo.TodoItem"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/todo.TodoItem"
                         }
                     }
                 }
@@ -86,7 +99,7 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Todo ID",
+                        "description": "TodoItem ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -112,20 +125,28 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Todo ID",
+                        "description": "TodoItem ID",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Add sub TodoItem",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/todo.SimpleTodoItem"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/todo.TodoItem"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/todo.TodoItem"
                         }
                     }
                 }
@@ -135,7 +156,7 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Todo ID",
+                        "description": "TodoItem ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -153,6 +174,14 @@
             "properties": {
                 "count": {
                     "type": "integer"
+                }
+            }
+        },
+        "todo.SimpleTodoItem": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
                 }
             }
         },

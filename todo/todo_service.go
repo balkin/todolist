@@ -2,20 +2,15 @@ package todo
 
 import (
 	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/orm"
 )
 
 var Db *pg.DB
 
 func ConnectToDatabase() {
 	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd"})
-	qs := []string{
-		"CREATE TABLE IF NOT EXISTS todo_items(id int, name text, parent_id int)",
-	}
-	for _, q := range qs {
-		_, err := Db.Exec(q)
-		if err != nil {
-			panic(err)
-		}
+	if err := Db.CreateTable((*TodoItem)(nil), &orm.CreateTableOptions{IfNotExists: true}); err != nil {
+		panic(err)
 	}
 }
 
@@ -26,14 +21,16 @@ func DisconnectDatabase() {
 	}
 }
 
-func AddTodoItem(name string) error {
-	return Db.Insert(TodoItem{Name: name})
+func AddTodoItem(name string) (*TodoItem, error) {
+	item := TodoItem{Name: name}
+	err := Db.Insert(&item)
+	return &item, err
 }
 
 func ListTodoItems() ([]TodoItem, error) {
-	var todos []TodoItem
-	_, err := Db.Query(&todos, "SELECT * FROM todos WHERE parent_id IS NULL")
-	return todos, err
+	var todo_items []TodoItem
+	_, err := Db.Query(&todo_items, "SELECT * FROM todo_items WHERE parent_id IS NULL")
+	return todo_items, err
 }
 
 func CountTodoItems() (int, error) {
@@ -45,21 +42,27 @@ func CountRootTodoItems() (int, error) {
 }
 
 func ShowTodoItem(id int) ([]TodoItem, error) {
-	var todos []TodoItem
-	_, err := Db.Query(&todos, `
+	var todo_items []TodoItem
+	_, err := Db.Query(&todo_items, `
 WITH RECURSIVE r AS (
-  SELECT id, parent_id, name FROM todos WHERE parent_id = ?
+  SELECT id, parent_id, name FROM todo_items WHERE parent_id = ?
   UNION
-  SELECT todos.id, todos.parent_id, todos.name FROM todos JOIN r ON todos.parent_id = r.id
+  SELECT todo_items.id, todo_items.parent_id, todo_items.name FROM todo_items JOIN r ON todo_items.parent_id = r.id
 )
 SELECT * FROM r;
 `, id)
-	return todos, err
+	return todo_items, err
 }
 
-func AddTodoSubitem(id int, name string) error {
-	item := TodoItem{Name: name, ParentId: id}
-	return Db.Insert(item)
+func AddTodoSubitem(id int, name string) (*TodoItem, error) {
+	parent := TodoItem{Id: id}
+	if err := Db.Select(parent); err == nil {
+		item := TodoItem{Name: name, ParentId: id}
+		err := Db.Insert(&item)
+		return &item, err
+	} else {
+		return nil, err
+	}
 }
 
 func DeleteTodoItem(id int) error {
