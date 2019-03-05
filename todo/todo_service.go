@@ -56,7 +56,7 @@ SELECT * FROM r;
 
 func AddTodoSubitem(id int, name string) (*TodoItem, error) {
 	parent := TodoItem{Id: id}
-	if err := Db.Select(parent); err == nil {
+	if err := Db.Select(&parent); err == nil {
 		item := TodoItem{Name: name, ParentId: id}
 		err := Db.Insert(&item)
 		return &item, err
