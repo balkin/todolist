@@ -35,9 +35,9 @@ func AddTodoItem(name string) (*TodoItem, error) {
 }
 
 func ListTodoItems() ([]TodoItem, error) {
-	var todo_items = []TodoItem{}
-	_, err := Db.Query(&todo_items, "SELECT * FROM todo_items WHERE parent_id IS NULL")
-	return todo_items, err
+	var todoItems = []TodoItem{}
+	_, err := Db.Query(&todoItems, "SELECT * FROM todo_items WHERE parent_id IS NULL")
+	return todoItems, err
 }
 
 func CountTodoItems() (int, error) {
@@ -49,8 +49,8 @@ func CountRootTodoItems() (int, error) {
 }
 
 func ShowTodoItem(id int) ([]TodoItem, error) {
-	var todo_items = []TodoItem{}
-	_, err := Db.Query(&todo_items, `
+	var todoItems = []TodoItem{}
+	_, err := Db.Query(&todoItems, `
 WITH RECURSIVE r AS (
   SELECT id, parent_id, name FROM todo_items WHERE id = ?
   UNION
@@ -58,7 +58,7 @@ WITH RECURSIVE r AS (
 )
 SELECT * FROM r;
 `, id)
-	return todo_items, err
+	return todoItems, err
 }
 
 func AddTodoSubitem(id int, name string) (*TodoItem, error) {
