@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,6 +16,13 @@ func SetupTestRouter() *gin.Engine {
 
 func MakeGinRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
+func MakeGinReaderRequest(r http.Handler, method, path string, reader io.Reader) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, reader)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
