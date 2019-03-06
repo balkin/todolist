@@ -14,6 +14,13 @@ func ConnectToDatabase() {
 	}
 }
 
+func ConnectToTestDatabase() {
+	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd"})
+	if err := Db.CreateTable((*TodoItem)(nil), &orm.CreateTableOptions{Temp: true, IfNotExists: true, FKConstraints: true}); err != nil {
+		panic(err)
+	}
+}
+
 func DisconnectDatabase() {
 	if Db != nil {
 		_ = Db.Close()
@@ -28,7 +35,7 @@ func AddTodoItem(name string) (*TodoItem, error) {
 }
 
 func ListTodoItems() ([]TodoItem, error) {
-	var todo_items []TodoItem
+	var todo_items = []TodoItem{}
 	_, err := Db.Query(&todo_items, "SELECT * FROM todo_items WHERE parent_id IS NULL")
 	return todo_items, err
 }
@@ -42,7 +49,7 @@ func CountRootTodoItems() (int, error) {
 }
 
 func ShowTodoItem(id int) ([]TodoItem, error) {
-	var todo_items []TodoItem
+	var todo_items = []TodoItem{}
 	_, err := Db.Query(&todo_items, `
 WITH RECURSIVE r AS (
   SELECT id, parent_id, name FROM todo_items WHERE id = ?
