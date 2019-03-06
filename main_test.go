@@ -1,11 +1,17 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func SetupTestRouter() *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	return SetupRouter()
+}
 
 func MakeGinRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
@@ -15,8 +21,8 @@ func MakeGinRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 }
 
 func TestPing(t *testing.T) {
-	router := SetupRouter()
+	router := SetupTestRouter()
 	w := MakeGinRequest(router, "GET", "/ping")
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.HeaderMap["Content-Type"], "application/json; charset=utf-8")
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 }

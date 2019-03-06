@@ -10,7 +10,7 @@ import (
 )
 
 func TestListTodoWorks(t *testing.T) {
-	router := SetupRouter()
+	router := SetupTestRouter()
 	todo.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/item/")
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -23,7 +23,7 @@ func TestListTodoWorks(t *testing.T) {
 }
 
 func TestCountTodoWorks(t *testing.T) {
-	router := SetupRouter()
+	router := SetupTestRouter()
 	todo.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/count")
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -36,7 +36,7 @@ func TestCountTodoWorks(t *testing.T) {
 }
 
 func TestCountAllTodoWorks(t *testing.T) {
-	router := SetupRouter()
+	router := SetupTestRouter()
 	todo.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/countall")
 	assert.Equal(t, http.StatusOK, w.Code)
