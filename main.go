@@ -1,9 +1,9 @@
 package main
 
 import (
-	_ "./docs"
 	"context"
 	"github.com/balkin/todolist/controllers"
+	_ "github.com/balkin/todolist/docs"
 	"github.com/balkin/todolist/todo"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
