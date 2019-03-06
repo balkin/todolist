@@ -55,7 +55,15 @@ func TodoListItems(ctx *gin.Context) {
 // @Success 200 {array} todo.TodoItem
 // @Router /todo/item/{id} [get]
 func TodoShowItem(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{"id": ctx.Param("id")})
+	if id, err := strconv.Atoi(ctx.Param("id")); err == nil {
+		if items, err := todo.ShowTodoItem(id); err == nil {
+			ctx.JSON(200, items)
+		} else {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, ErrorStruct{Error: "Failed to get or serialize todo item"})
+		}
+	} else {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, ErrorStruct{Error: "Failed to find todo item"})
+	}
 }
 
 // TodoAddItem godoc
@@ -109,5 +117,14 @@ func TodoAddSubItem(ctx *gin.Context) {
 // @Success 200
 // @Router /todo/item/{id} [delete]
 func TodoDeleteItem(ctx *gin.Context) {
-	ctx.JSON(200, nil)
+	if id, err := strconv.Atoi(ctx.Param("id")); err == nil {
+		if err := todo.DeleteTodoItem(id); err == nil {
+			ctx.JSON(200, gin.H{"ok": true})
+		} else {
+			log.Println(err)
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, ErrorStruct{Error: "Failed to delete todo item"})
+		}
+	} else {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, ErrorStruct{Error: "Failed to find todo item"})
+	}
 }

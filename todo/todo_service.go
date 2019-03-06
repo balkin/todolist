@@ -9,7 +9,7 @@ var Db *pg.DB
 
 func ConnectToDatabase() {
 	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd"})
-	if err := Db.CreateTable((*TodoItem)(nil), &orm.CreateTableOptions{IfNotExists: true}); err != nil {
+	if err := Db.CreateTable((*TodoItem)(nil), &orm.CreateTableOptions{IfNotExists: true, FKConstraints: true}); err != nil {
 		panic(err)
 	}
 }
@@ -45,7 +45,7 @@ func ShowTodoItem(id int) ([]TodoItem, error) {
 	var todo_items []TodoItem
 	_, err := Db.Query(&todo_items, `
 WITH RECURSIVE r AS (
-  SELECT id, parent_id, name FROM todo_items WHERE parent_id = ?
+  SELECT id, parent_id, name FROM todo_items WHERE id = ?
   UNION
   SELECT todo_items.id, todo_items.parent_id, todo_items.name FROM todo_items JOIN r ON todo_items.parent_id = r.id
 )
@@ -66,5 +66,5 @@ func AddTodoSubitem(id int, name string) (*TodoItem, error) {
 }
 
 func DeleteTodoItem(id int) error {
-	return Db.Delete(TodoItem{Id: id})
+	return Db.Delete(&TodoItem{Id: id})
 }
