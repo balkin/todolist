@@ -33,22 +33,7 @@ var HttpDaemon *http.Server
 // @BasePath /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags)
-	router := gin.Default()
-	router.GET("/", controllers.IndexController)
-	v1 := router.Group("/api/v1")
-	{
-		todoApi := v1.Group("/todo")
-		{
-			todoApi.GET("count", controllers.TodoCountItems)
-			todoApi.GET("countall", controllers.TodoCountAllItems)
-			todoApi.GET("item/", controllers.TodoListItems)
-			todoApi.POST("item/", controllers.TodoAddItem)
-			todoApi.GET("item/:id", controllers.TodoShowItem)
-			todoApi.POST("item/:id", controllers.TodoAddSubItem)
-			todoApi.DELETE("item/:id", controllers.TodoDeleteItem)
-		}
-	}
-	router.GET("/swagger/*any", controllers.GinModeReleaseSwagger(swaggerFiles.Handler)) // not in production
+	router := SetupRouter()
 	todo.ConnectToDatabase()
 
 	HttpDaemon = &http.Server{Addr: ":8000", Handler: router, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second}
@@ -82,4 +67,26 @@ func main() {
 			}
 		}
 	}
+}
+
+func SetupRouter() *gin.Engine {
+	router := gin.Default()
+	router.GET("/", controllers.IndexController)
+	router.GET("/ping", controllers.PingController)
+	v1 := router.Group("/api/v1")
+	{
+		todoApi := v1.Group("/todo")
+		{
+			todoApi.GET("count", controllers.TodoCountItems)
+			todoApi.GET("countall", controllers.TodoCountAllItems)
+			todoApi.GET("item/", controllers.TodoListItems)
+			todoApi.POST("item/", controllers.TodoAddItem)
+			todoApi.GET("item/:id", controllers.TodoShowItem)
+			todoApi.POST("item/:id", controllers.TodoAddSubItem)
+			todoApi.DELETE("item/:id", controllers.TodoDeleteItem)
+		}
+	}
+	// not in production
+	router.GET("/swagger/*any", controllers.GinModeReleaseSwagger(swaggerFiles.Handler))
+	return router
 }
