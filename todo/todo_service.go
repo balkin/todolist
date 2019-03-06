@@ -8,7 +8,7 @@ import (
 var Db *pg.DB
 
 func ConnectToDatabase() {
-	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd"})
+	Db = pg.Connect(&pg.Options{User: "root", Password: "Passw0rd", Addr: "postgres:5432"})
 	if err := Db.CreateTable((*TodoItem)(nil), &orm.CreateTableOptions{IfNotExists: true, FKConstraints: true}); err != nil {
 		panic(err)
 	}
