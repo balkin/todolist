@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/balkin/todolist/controllers"
+	"github.com/balkin/todolist/db"
 	"github.com/balkin/todolist/todo"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -14,7 +15,7 @@ const todoItemName = "SimpleTodo"
 
 func TestListTodoWorks(t *testing.T) {
 	router := SetupTestRouter()
-	todo.ConnectToTestDatabase()
+	db.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/item/")
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
@@ -27,7 +28,7 @@ func TestListTodoWorks(t *testing.T) {
 
 func TestCountTodoWorks(t *testing.T) {
 	router := SetupTestRouter()
-	todo.ConnectToTestDatabase()
+	db.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/count")
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
@@ -40,7 +41,7 @@ func TestCountTodoWorks(t *testing.T) {
 
 func TestCountAllTodoWorks(t *testing.T) {
 	router := SetupTestRouter()
-	todo.ConnectToTestDatabase()
+	db.ConnectToTestDatabase()
 	w := MakeGinRequest(router, "GET", "/api/v1/todo/countall")
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
@@ -53,7 +54,7 @@ func TestCountAllTodoWorks(t *testing.T) {
 
 func TestPostNewTodo(t *testing.T) {
 	router := SetupTestRouter()
-	todo.ConnectToTestDatabase()
+	db.ConnectToTestDatabase()
 	if jsonBytes, err := json.Marshal(todo.SimpleTodoItem{Name: todoItemName}); err == nil {
 		w := MakeGinReaderRequest(router, "POST", "/api/v1/todo/item/", bytes.NewReader(jsonBytes))
 		assert.Equal(t, http.StatusOK, w.Code)

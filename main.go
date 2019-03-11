@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/balkin/todolist/controllers"
+	"github.com/balkin/todolist/db"
 	_ "github.com/balkin/todolist/docs"
-	"github.com/balkin/todolist/todo"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"log"
@@ -34,7 +34,8 @@ var HttpDaemon *http.Server
 func main() {
 	log.SetFlags(log.LstdFlags)
 	router := SetupRouter()
-	todo.ConnectToDatabase()
+	db.ConnectToDatabase()
+	defer db.DisconnectDatabase()
 
 	HttpDaemon = &http.Server{Addr: ":8000", Handler: router, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second}
 	go func() {
@@ -51,20 +52,16 @@ func main() {
 		switch sig {
 		case syscall.SIGINT:
 			log.Println("Immediately stopping HTTP server")
-			os.Exit(0)
+			return
 		case syscall.SIGTERM:
-		case syscall.SIGHUP:
 			log.Println("Gracefully stopping HTTP server")
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			if err := HttpDaemon.Shutdown(ctx); err != nil {
-				log.Fatal("Error during HTTP server shutdown:", err)
+				log.Println("Error during HTTP server shutdown:", err)
+				return
 			}
-			go todo.DisconnectDatabase()
-			select {
-			case <-ctx.Done():
-				log.Println("Stopped HTTP server after waiting 5 seconds")
-			}
+			<-ctx.Done()
 		}
 	}
 }
@@ -75,6 +72,7 @@ func SetupRouter() *gin.Engine {
 	router.GET("/ping", controllers.PingController)
 	v1 := router.Group("/api/v1")
 	{
+		// Add some middleware to process JWT tokens or similar stuff
 		todoApi := v1.Group("/todo")
 		{
 			todoApi.GET("count", controllers.TodoCountItems)
